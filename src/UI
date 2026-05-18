@@ -1,0 +1,62 @@
+import pygame
+import sys
+
+pygame.init()
+
+# SCREEN
+WIDTH = 400
+HEIGHT = 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Flappy Bird")
+
+# COLORS
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+BLUE = (135, 206, 235)
+GREEN = (0, 200, 0)
+RED = (200, 0, 0)
+
+# FONT
+title_font = pygame.font.SysFont("Arial", 50)
+button_font = pygame.font.SysFont("Arial", 30)
+
+# BUTTONS
+start_button = pygame.Rect(125, 250, 150, 50)
+exit_button = pygame.Rect(125, 330, 150, 50)
+
+running = True
+
+while running:
+    screen.fill(BLUE)
+
+    # TITLE
+    title_text = title_font.render("FLAPPY BIRD", True, WHITE)
+    screen.blit(title_text, (40, 100))
+
+    # DRAW BUTTONS
+    pygame.draw.rect(screen, GREEN, start_button)
+    pygame.draw.rect(screen, RED, exit_button)
+
+    # BUTTON TEXT
+    start_text = button_font.render("START", True, WHITE)
+    exit_text = button_font.render("EXIT", True, WHITE)
+
+    screen.blit(start_text, (155, 260))
+    screen.blit(exit_text, (170, 340))
+
+    # EVENTS
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if start_button.collidepoint(event.pos):
+                print("START GAME")
+
+            if exit_button.collidepoint(event.pos):
+                pygame.quit()
+                sys.exit()
+
+    pygame.display.update()
+
+pygame.quit()
