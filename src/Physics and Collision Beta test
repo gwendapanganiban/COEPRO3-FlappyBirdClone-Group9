@@ -1,0 +1,164 @@
+import pygame
+import random
+import sys
+
+
+# =========================
+# INIT
+# =========================
+
+pygame.init()
+
+WIDTH = 580
+HEIGHT = 840
+
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Flappy Bird Mobile/PC Clone")
+
+clock = pygame.time.Clock()
+
+
+# =========================
+# COLORS
+# =========================
+
+BLUE = (135, 206, 235)
+GREEN = (0, 200, 0)
+YELLOW = (255, 255, 0)
+
+
+# =========================
+# MAIN GAME
+# =========================
+
+def main():
+
+    # BIRD
+    bird_x = 80
+    bird_y = HEIGHT // 2
+    bird_radius = 20
+
+    gravity = 0.5
+    bird_speed = 0
+
+    # PIPES
+    pipe_width = 120
+    pipe_gap = 180
+    pipe_speed = 7
+
+    pipes = []
+
+    # PIPE TIMER
+    SPAWNPIPE = pygame.USEREVENT
+    pygame.time.set_timer(SPAWNPIPE, 1350)
+
+    # CREATE PIPE
+    def create_pipe():
+
+        gap_y = random.randint(190, 600)
+
+        top_pipe = pygame.Rect(
+            WIDTH,
+            0,
+            pipe_width,
+            gap_y - pipe_gap // 2
+        )
+
+        bottom_pipe = pygame.Rect(
+            WIDTH,
+            gap_y + pipe_gap // 2,
+            pipe_width,
+            HEIGHT - (gap_y + pipe_gap // 2)
+        )
+
+        return top_pipe, bottom_pipe
+
+    # MOVE PIPES
+    def move_pipes():
+
+        for pipe in pipes:
+            pipe.x -= pipe_speed
+
+        # Remove offscreen pipes
+        pipes[:] = [pipe for pipe in pipes if pipe.right > 0]
+
+    # DRAW PIPES
+    def draw_pipes():
+
+        for pipe in pipes:
+            pygame.draw.rect(screen, GREEN, pipe)
+
+    # COLLISION
+    def check_collision():
+
+        bird_rect = pygame.Rect(
+            bird_x - bird_radius,
+            bird_y - bird_radius,
+            bird_radius * 2,
+            bird_radius * 2
+        )
+
+        for pipe in pipes:
+            if bird_rect.colliderect(pipe):
+                return False
+
+        if bird_y <= 0 or bird_y >= HEIGHT:
+            return False
+
+        return True
+
+    # GAME LOOP
+    running = True
+
+    while running:
+
+        clock.tick(60)
+
+        # EVENTS
+        for event in pygame.event.get():
+
+            if event.type == pygame.QUIT:
+                running = False
+
+            # Mouse click / Tap
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                bird_speed = -9
+
+            # Spawn pipes
+            if event.type == SPAWNPIPE:
+                pipes.extend(create_pipe())
+
+        # PHYSICS
+        bird_speed += gravity
+        bird_y += bird_speed
+
+        # MOVE PIPES
+        move_pipes()
+
+        # COLLISION
+        if not check_collision():
+            running = False
+
+        # DRAW
+        screen.fill(BLUE)
+
+        # Bird
+        pygame.draw.circle(
+            screen,
+            YELLOW,
+            (bird_x, int(bird_y)),
+            bird_radius
+        )
+
+        # Pipes
+        draw_pipes()
+
+        pygame.display.update()
+
+    pygame.quit()
+    sys.exit()
+
+
+# RUN GAME
+if __name__ == "__main__":
+    main()
